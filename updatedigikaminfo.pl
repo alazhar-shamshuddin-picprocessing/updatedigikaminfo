@@ -35,8 +35,8 @@ updatedigikaminfo -d picasa.db -b ~/digikam_backup.db ~/pics/digikam4.db
 
 Creates a backup of the DigiKam database file to the specified outfile
 before this program modifies the original.  If the specified outfile exists,
-it will not be overwritten; the program will ask you specify a file that does 
-not exist.
+it will not be overwritten; the program will ask you to specify a file that
+does not exist.
 
 =item B<-d, --picasadb=<infile>>
 
@@ -72,16 +72,16 @@ This program:
       is provided via the --backupdb option.
 
       If a backup filename is not explicitly specified, a backup file will be
-      created in the current working directory with "~backup_" prefixed to the
+      created in the current working directory with "~backup_" prefixed with the
       DigiKam database filename.  For example, the default backup file for
-      digikam4.db would be ~backup_digikam4.db.  
-      
+      digikam4.db would be ~backup_digikam4.db.
+
       If the default backup file already exists, it will be overwritten without
-      warning.  A custom backup file will never be overwritten; you must 
+      warning.  A custom backup file will never be overwritten; you must
       specify a custom backup file that does not exist.
 
    2. Only supports importing Picasa data from a JSON-formatted file, not an
-      SQLite database file file (even though extractpicasainfo.pl outputs
+      SQLite database file (even though extractpicasainfo.pl outputs
       information in both formats).  SQLite support may be added later if it is
       deemed necessary but is unlikely.
 
@@ -420,8 +420,8 @@ sub processCmdLineArgs
 #~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 #-------------------------------------------------------------------------------
-# Adds a DigiKam tag property for the specified tag if one does not
-# already exist.  If the tag property already exists, we do nothing.
+# Adds a DigiKam tag property for the specified tag if one does not already
+# exist.  If the tag property already exists, we do nothing.
 #
 # \param $_[0] [in] A handle to the DigiKam database.
 # \param $_[1] [in] The ID of the DigiKam tag to which we are adding a property.
@@ -512,7 +512,7 @@ sub createDigiKamTag
 
 #-------------------------------------------------------------------------------
 # Get the DigiKam album ID for an album with the specified name.
-# 
+#
 # @todo: Note DigiKam stores album names as relative paths.  This method simply
 # look for records whose relative paths end with the specified name.
 #
@@ -546,11 +546,11 @@ sub getDigiKamAlbumId
 }
 
 #-------------------------------------------------------------------------------
-# Gets the DigiKam image (file) ID for a file in the speicifed DigiKam album.
+# Gets the DigiKam image (file) ID for a file in the specified DigiKam album.
 #
 # \param $_[0] [in] A handle to the DigiKam database.
 # \param $_[1] [in] A DigiKam album ID.
-# \param $_[1] [in] A base filename (excluding path information) of an image 
+# \param $_[1] [in] A base filename (excluding path information) of an image
 #                   in the specified album.
 #
 # \return The ID of the image in the specified album.
@@ -637,7 +637,8 @@ sub openDbConnection
 }
 
 #-------------------------------------------------------------------------------
-# @todo.
+# Tags the specified image with the specified text, under the specified parent
+# tag.
 #
 # \param $_[0] [in] A handle to the DigiKam database.
 # \param $_[1] [in] The DigiKam image ID of the image we want to tag.
@@ -682,7 +683,7 @@ sub tagDigikamImage
 }
 
 #-------------------------------------------------------------------------------
-# @todo.
+# Tags the specified image with a face tag.
 #
 # The face tag image coordinates must be specified as per the example below:
 #
@@ -754,12 +755,13 @@ sub tagDigikamImageWithFace
 }
 
 #-------------------------------------------------------------------------------
-# @todo.
+# Updates the DigiKam database with information extracted from the Picasa
+# JSON file.
 #
-# \param $_[0] [in] @todo.
+# \param $_[0] [in] A reference to the Picasa data.
 # \param $_[1] [in] A handle to the DigiKam database.
 #
-# \return @todo.
+# \return None.
 #-------------------------------------------------------------------------------
 sub updateDigiKam
 {
