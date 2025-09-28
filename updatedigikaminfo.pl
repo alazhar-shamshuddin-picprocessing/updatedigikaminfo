@@ -770,8 +770,7 @@ sub updateDigiKam
 
    my $dAlbums_sth = $digiKamDbh->prepare("UPDATE  Albums
                                            SET     date = ?
-                                                  ,caption = ?
-                                                  ,collection = ?
+                                                  ,caption = REPLACE(?, '\\n', CHAR(10))
                                            WHERE   id = ?");
 
    my $pAlbums_hr = $picasaInfo_hr->{albums};
@@ -786,7 +785,6 @@ sub updateDigiKam
       # Update DigiKam album info.
       my $rv = $dAlbums_sth->execute($pAlbums_hr->{$pAlbumKey}->{date},
                                      $pAlbums_hr->{$pAlbumKey}->{description},
-                                     $pAlbums_hr->{$pAlbumKey}->{category},
                                      $dAlbumId);
 
       if ($rv != 1)
