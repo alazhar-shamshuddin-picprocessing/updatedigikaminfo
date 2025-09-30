@@ -136,9 +136,9 @@ use Pod::Usage;                  # For printing usage clause and man page.
 use constant TRUE  => 1;
 use constant FALSE => 0;
 
-my $gLogger        = undef;      # For logging.
-my %gCmds          = ();         # For storing command-line options.
-my $gJson          = JSON->new;  # For reading JSON files.
+my $gLogger        = undef;            # For logging.
+my %gCmds          = ();               # For storing command-line options.
+my $gJson          = JSON->new->utf8;  # For reading JSON files.
 
 # All DigiKam face tags are created under this ID by DigiKam.  We look it up
 # once and save it for future reference for increased efficiency.
@@ -514,7 +514,16 @@ sub createDigiKamTag
 # Get the DigiKam album ID for an album with the specified name.
 #
 # @todo: Note DigiKam stores album names as relative paths.  This method simply
-# look for records whose relative paths end with the specified name.
+# looks for records whose relative paths end with the specified name.  This
+# is problematic when more than one album (in different folders) share the
+# same name.  For example,
+#
+#    2023/2023_05_31 - Doing Something Fun
+#    Tmp/2023_05_31 - Doing Something Fun
+#
+# We exclude deleted albums in DigiKam which have an albumRoot of 0 to reduce
+# (but not eliminate) the issue of finding multiple album IDs with the same
+# name.
 #
 # \param $_[0] [in] A handle to the DigiKam database.
 # \param $_[1] [in] An album name.
@@ -528,7 +537,8 @@ sub getDigiKamAlbumId
 
    my $sth = $dbh->prepare('SELECT id
                             FROM   Albums
-                            WHERE  relativePath LIKE ?');
+                            WHERE  relativePath LIKE ?
+                            AND    albumRoot <> 0');
    $sth->bind_param(1, '%' . $albumName);
    $sth->execute();
    my @records = @{$sth->fetchall_arrayref()};
@@ -777,10 +787,30 @@ sub updateDigiKam
 
    foreach my $pAlbumKey (sort{$a <=> $b} keys(%{$pAlbums_hr}))
    {
-      my $dAlbumId =
-         getDigiKamAlbumId($digiKamDbh, $pAlbums_hr->{$pAlbumKey}->{name});
+      if (!exists($pAlbums_hr->{$pAlbumKey}->{name}))
+      {
+         $gLogger->error("Picasa album with key '$pAlbumKey' is missing " .
+                         "an album name.");
+         next;
+      }
 
-      print "$pAlbumKey $dAlbumId " . $pAlbums_hr->{$pAlbumKey}->{name} . "\n";
+      if (!exists($pAlbums_hr->{$pAlbumKey}->{directory}))
+      {
+         $gLogger->error("Picasa album with key '$pAlbumKey' is missing " .
+                         "the directory.");
+         next;
+      }
+
+      my $relativePath = $pAlbums_hr->{$pAlbumKey}->{directory};
+      $relativePath =~ s/\/home\/alazhar\/pics//;
+      $relativePath =~ s/\/$//;
+
+      # my $dAlbumId =
+      #    getDigiKamAlbumId($digiKamDbh, $pAlbums_hr->{$pAlbumKey}->{name});
+
+      my $dAlbumId = getDigiKamAlbumId($digiKamDbh, $relativePath);
+
+      print "$pAlbumKey | $dAlbumId | $relativePath " . $pAlbums_hr->{$pAlbumKey}->{name} . "\n";
 
       # Update DigiKam album info.
       my $rv = $dAlbums_sth->execute($pAlbums_hr->{$pAlbumKey}->{date},
